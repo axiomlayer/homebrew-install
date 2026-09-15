@@ -15,6 +15,7 @@ concurrency:
 
 jobs:
   tests:
+    if: github.repository == 'Homebrew/install'
     strategy:
       matrix:
         os:
