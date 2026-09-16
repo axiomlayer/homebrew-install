@@ -1,0 +1,90 @@
+name: AxiomLayer Homebrew installer integration
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: "19 */6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: axiomlayer-homebrew-install-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  contract:
+    if: github.repository == 'axiomlayer/homebrew-install'
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - macos-15
+          - ubuntu-24.04
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    steps:
+      - name: Checkout the fork with authority history
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Verify exact bytes, Darwin adapter, and inert workflows
+        run: python3 integration/axiomlayer/verify.py all
+
+      - name: Exercise tamper refusal and non-mutating entrypoints
+        run: python3 -m unittest -v integration/axiomlayer/test_verify.py
+
+      - name: Materialize exact bootstrap bytes without executing them
+        run: |
+          destination="${RUNNER_TEMP}/homebrew-install.sh"
+          receipt="${RUNNER_TEMP}/homebrew-install-receipt.json"
+          python3 integration/axiomlayer/verify.py materialize \
+            --destination "${destination}" \
+            --receipt "${receipt}"
+          test -x "${destination}"
+          test -s "${receipt}"
+
+  upstream-canary:
+    if: github.repository == 'axiomlayer/homebrew-install'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout the fork with authority history
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Fetch upstream candidate as data, never as executable bootstrap
+        run: git fetch --no-tags --filter=blob:none https://github.com/Homebrew/install.git main
+
+      - name: Acquire the pinned raw installer as verified data
+        run: |
+          python3 integration/axiomlayer/verify.py acquire \
+            --destination "${RUNNER_TEMP}/downloaded-homebrew-install.sh" \
+            --receipt "${RUNNER_TEMP}/downloaded-homebrew-install-receipt.json"
+
+      - name: Refuse upstream contract, action, or workflow inventory drift
+        run: python3 integration/axiomlayer/verify.py verify-candidate FETCH_HEAD
+
+  promotion-gate:
+    if: github.repository == 'axiomlayer/homebrew-install' && always()
+    needs:
+      - contract
+      - upstream-canary
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Require all read-only proofs
+        env:
+          CONTRACT_RESULT: ${{ needs.contract.result }}
+          CANARY_RESULT: ${{ needs.upstream-canary.result }}
+        run: |
+          test "${CONTRACT_RESULT}" = success
+          test "${CANARY_RESULT}" = success

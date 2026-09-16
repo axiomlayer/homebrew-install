@@ -1,0 +1,55 @@
+{
+  "schema": "axiomlayer-homebrew-install-integration-v1",
+  "authority": {
+    "policy": "axiomlayer/dotfiles#49",
+    "upstreamRepository": "Homebrew/install",
+    "forkRepository": "axiomlayer/homebrew-install",
+    "version": "2026-09-14",
+    "commit": "8949852f785a3bacaba2a979d0790337950b0a4a",
+    "tree": "cdc43383032ea8b6868e8552cb22de4bcfa43ee6",
+    "files": {
+      "install.sh": {
+        "gitBlob": "fc07b2138f5c60b282ed8b14dd9fc9fb248b9a3c",
+        "sha256": "25548e1da7930c1563dbbe2cb05834a4131c4da09234540b6fdac812fda3c287",
+        "bytes": 32785,
+        "rawUrl": "https://raw.githubusercontent.com/Homebrew/install/8949852f785a3bacaba2a979d0790337950b0a4a/install.sh"
+      },
+      "uninstall.sh": {
+        "gitBlob": "82225c15599845f4c56160ec95be1c6c74b054f6",
+        "sha256": "81db8de757490be1815ddd8af7c1cf6aafd5d15f87e77be766a00dd0968a061e",
+        "bytes": 13475,
+        "rawUrl": "https://raw.githubusercontent.com/Homebrew/install/8949852f785a3bacaba2a979d0790337950b0a4a/uninstall.sh"
+      }
+    }
+  },
+  "darwinFallback": {
+    "architecture": "arm64",
+    "prefix": "/opt/homebrew",
+    "minimumMacosVersion": "15.0",
+    "brewForkRepository": "AxiomLayer/homebrew",
+    "brewForkRemote": "https://github.com/axiomlayer/homebrew",
+    "requiredOverride": "HOMEBREW_BREW_GIT_REMOTE",
+    "hostBoundaries": [
+      "/opt/homebrew",
+      "/etc/paths.d/homebrew",
+      "/Library/Developer/CommandLineTools",
+      "/tmp/.com.apple.dt.CommandLineTools.installondemand.in-progress"
+    ]
+  },
+  "workflowPolicy": {
+    "integrationWorkflow": ".github/workflows/axiomlayer-fleet-integration.yml",
+    "upstreamWorkflows": [
+      ".github/workflows/actionlint.yml",
+      ".github/workflows/stale-issues-and-prs.yml",
+      ".github/workflows/tests.yml"
+    ],
+    "allowedActions": {
+      "Homebrew/actions/setup-homebrew": "f8d4222eb633e65c2a0157383cf80861fc7fae7f",
+      "actions/checkout": "3d3c42e5aac5ba805825da76410c181273ba90b1",
+      "actions/download-artifact": "3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c",
+      "actions/stale": "4391f3da665fdf50b6810c1a66712fb9ba21aa93",
+      "actions/upload-artifact": "043fb46d1a93c77aae656e7c1c64a875d1fc6a0a",
+      "github/codeql-action/upload-sarif": "cdf488f595d80d6e07e03d4674febd5ab45fa938"
+    }
+  }
+}

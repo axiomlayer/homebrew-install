@@ -25,7 +25,7 @@ permissions: {}
 
 jobs:
   workflow_syntax:
-    if: github.repository_owner == 'Homebrew'
+    if: github.repository == 'Homebrew/install'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -76,6 +76,7 @@ jobs:
     # We want to always upload this even if `actionlint` failed.
     # This is only available on public repositories.
     if: >
+      github.repository == 'Homebrew/install' &&
       always() &&
       !contains(fromJSON('["cancelled", "skipped"]'), needs.workflow_syntax.result) &&
       !github.event.repository.private &&
